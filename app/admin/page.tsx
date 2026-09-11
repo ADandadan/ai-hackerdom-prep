@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
 
 // Placeholder type — will match your Convex schema, e.g.:
 // announcements: defineTable({ title: v.string(), body: v.string(), createdAt: v.number() })
@@ -13,6 +16,7 @@ type Announcement = {
 
 export default function Admin() {
     const [activeTab, setActiveTab] = useState("announcements");
+    const addAnnouncement = useMutation(api.admin.addAnnouncement);
 
     // TEMP local state — replace with:
     // const announcements = useQuery(api.announcements.list);
@@ -21,17 +25,18 @@ export default function Admin() {
             id: "1",
             title: "Welcome to the new dashboard",
             body: "This is a sample announcement. Add your own below.",
-            createdAt: Date.now(),
+            createdAt: 0,
         },
     ]);
 
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
+    
 
     // TEMP local submit — replace with:
     // const createAnnouncement = useMutation(api.announcements.create);
     // await createAnnouncement({ title, body });
-    function handleAddAnnouncement(e: React.FormEvent) {
+    async function handleAddAnnouncement(e: React.FormEvent) {
         e.preventDefault();
         if (!title.trim() || !body.trim()) return;
 
@@ -39,8 +44,11 @@ export default function Admin() {
             id: crypto.randomUUID(),
             title: title.trim(),
             body: body.trim(),
-            createdAt: Date.now(),
+            createdAt: 0,
         };
+
+        
+        await addAnnouncement({ Announcement: newAnnouncement });
 
         setAnnouncements((prev) => [newAnnouncement, ...prev]);
         setTitle("");
@@ -114,7 +122,7 @@ export default function Admin() {
                                     </div>
                                     <p className="text-sm text-gray-700">{a.body}</p>
                                     <span className="text-xs text-gray-400">
-                                        {new Date(a.createdAt).toLocaleString()}
+
                                     </span>
                                 </div>
                             ))}
